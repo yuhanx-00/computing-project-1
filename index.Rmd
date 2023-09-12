@@ -1,0 +1,115 @@
+---
+title: "Project 1"
+author: "Yuhan Xiao"
+output: html_document
+date: "2023-09-16"
+---
+
+## Background
+
+```{r message=FALSE, warning=FALSE}
+library(here)
+library(tidyverse)
+library(dplyr)
+
+# tests if a directory named "data" exists locally
+if (!dir.exists(here("data"))) {
+    dir.create(here("data"))
+}
+
+# saves data only once (not each time you knit a R Markdown)
+if (!file.exists(here("data", "chocolate.RDS"))) {
+    url_csv <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-18/chocolate.csv"
+    chocolate <- readr::read_csv(url_csv)
+
+    # save the file to RDS objects
+    saveRDS(chocolate, file = here("data", "chocolate.RDS"))
+}
+
+# read the data locally
+chocolate <- readRDS(here("data", "chocolate.RDS"))
+as_tibble(chocolate)
+
+# take a glimpse of the data
+glimpse(chocolate)
+```
+
+## Part 1: Explore data
+
+1. Make a histogram of the rating scores to visualize the overall distribution of scores. Change the number of bins from the default to 10, 15, 20, and 25. Pick on the one that you think looks the best. Explain what the difference is when you change the number of bins and explain why you picked the one you did.
+
+```{r}
+hist(chocolate$rating, 
+     breaks=10,
+     xlab="Rating", ylab="Frequency", 
+     main="Frequency of Chocolate Rating")
+```
+
+2. Consider the countries where the beans originated from. How many reviews come from each country of bean origin?
+```{r}
+summary_data <- chocolate %>%
+  select(rating,country_of_bean_origin) %>%
+  group_by(country_of_bean_origin) %>%
+  summarise(
+    total_rating = sum(rating)
+  )
+summary_data
+```
+
+3. What is average rating scores from reviews of chocolate bars that have Ecuador as country_of_bean_origin in this dataset? For this same set of reviews, also calculate (1) the total number of reviews and (2) the standard deviation of the rating scores. Your answer should be a new data frame with these three summary statistics in three columns. Label the name of these columns mean, sd, and total.
+
+```{r}
+summary_data <- chocolate %>%
+  select(rating,country_of_bean_origin) %>%
+  group_by(country_of_bean_origin) %>%
+  filter(country_of_bean_origin == "Ecuador") %>%
+  summarise(
+    mean = mean(rating),
+    sd = sd(rating),
+    total = sum(rating)
+  )
+summary_data
+```
+
+4. Which country makes the best chocolate (or has the highest ratings on average) with beans from Ecuador?
+
+```{r}
+summary_data <- chocolate %>%
+  select(rating,country_of_bean_origin,company_location) %>%
+  filter(country_of_bean_origin == "Ecuador") %>%
+  group_by(company_location) %>%
+  summarise(
+    mean = mean(rating),
+  ) %>%
+  arrange(desc(mean))
+
+head(summary_data,1)
+```
+
+5. Calculate the average rating across all country of origins for beans. Which top 3 countries have the highest ratings on average?
+
+```{r}
+summary_data <- chocolate %>%
+  select(rating,company_location) %>%
+  group_by(company_location) %>%
+  summarise(
+    mean = mean(rating),
+  ) %>%
+  arrange(desc(mean))
+
+head(summary_data,3)
+```
+
+6. Following up on the previous problem, now remove any countries of bean origins that have less than 10 chocolate bar reviews. Now, which top 3 countries have the highest ratings on average?
+
+```{r}
+summary_data <- chocolate %>%
+  select(rating,company_location) %>%
+  group_by(company_location) %>%
+  summarise(
+    mean = mean(rating),
+  ) %>%
+  arrange(desc(mean))
+
+head(summary_data,3)
+```
