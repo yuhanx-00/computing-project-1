@@ -153,5 +153,16 @@ ggplot(summary_percent_cocoa, aes(x = cocoa_percent_category , y = rating)) +
   theme(
     plot.title = element_text(hjust = 0.5)  # Center the title
   )
+```
 
+## Part 2: Join two datasets together
+
+```{r}
+continent_data <- as_tibble(gapminder) %>%
+  select(country, continent) %>%
+  rename("country_of_bean_origin" = "country") %>%
+  unique()
+  
+chocolate_w_continent <- chocolate %>%
+  left_join(continent_data, by = "country_of_bean_origin")
 ```
