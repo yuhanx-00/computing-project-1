@@ -197,11 +197,28 @@ ggplot(chocolate_w_continent, aes(x = continent, y = rating)) +
 ## Part 3: Convert wide data into long data
 
 ```{r}
-# first step: Create a new set of columns titled beans, sugar, cocoa_butter, vanilla, letchin, and salt that contain a 1 or 0 representing whether or not that review for the chocolate bar contained that ingredient (1) or not (0).
+# first step: Create a new set of columns titled beans, sugar, cocoa_butter, vanilla, lecithin, and salt that contain a 1 or 0 representing whether or not that review for the chocolate bar contained that ingredient (1) or not (0)
+
+ingredients_names <- c("beans", "sugar", "cocoa_butter", "vanilla", "lecithin", "salt")
+ingredients_abbr <- c("B", "S", "C", "V", "L", "Sa")
+
+if (length(ingredients_names) != length(ingredients_abbr)) {
+  stop("ingredients_names has a different length from ingredients_abbr.")
+}
+
 
 chocolate_feature <- chocolate %>%
   select(ingredients, most_memorable_characteristics, rating, review_date) %>%
-  mutate(beans = case_when(
-    str_detect(ingredients, "B") == TRUE ~ 1,
-    is.na(ingredients) ~ 0))
+  for (i in 1:length(ingredients_abbr)) {
+    mutate(as.name(ingredients_names[i]) = case_when(
+      str_detect(ingredients, ingredients_abbr[i]) == TRUE ~ 1,
+      is.na(ingredients) ~ 0)) %>%
+  }
+  arrange(review_date)
+
+# chocolate_feature <- chocolate %>%
+#   select(ingredients, most_memorable_characteristics, rating, review_date) %>%
+#   mutate(beans = case_when(
+#     str_detect(ingredients, "B") == TRUE ~ 1,
+#     is.na(ingredients) ~ 0))
 ```
