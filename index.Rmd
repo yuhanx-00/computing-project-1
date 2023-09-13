@@ -200,5 +200,6 @@ ggplot(chocolate_w_continent, aes(x = continent, y = rating)) +
 chocolate_feature <- chocolate %>%
   select(ingredients, most_memorable_characteristics, rating, review_date) %>%
   mutate(beans = case_when(
-    str_detect(ingredients, "B") ~ 1))
+    str_detect(ingredients, "B") == TRUE ~ 1,
+    is.na(ingredients) ~ 0))
 ```
