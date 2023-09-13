@@ -112,3 +112,34 @@ chocolate %>%
   arrange(desc(mean)) %>%
   head(3)
 ```
+
+7. On average, which category of chocolate percentage is most highly rated? Do these countries mostly agree or are there disagreements?
+  - For each country, make a set of four side-by-side boxplots plotting the groups on the x-axis and the ratings on the y-axis. These plots should be faceted by country. <br>
+  
+```{r}
+# first step: Identify the countries of bean origin with at least 50 reviews. Remove reviews from countries are not in this list.
+countries_with_enough_reviews <- chocolate %>%
+  select(country_of_bean_origin) %>%
+  group_by(country_of_bean_origin) %>%
+  summarise(
+    total = n()
+  ) %>%
+  filter(total >= 50) %>%
+  pull(country_of_bean_origin)
+
+# second step: Using the variable describing the chocolate percentage for each review, create a new column that groups chocolate percentages into one of four groups: (i) <60%, (ii) >=60 to <70%, (iii) >=70 to <90%, and (iii) >=90% (Hint check out the substr() function in base R and the case_when() function from dplyr – see example below).
+summary_percent_cocoa <- chocolate %>%
+  select(country_of_bean_origin, cocoa_percent) %>%
+  filter(country_of_bean_origin %in% countries_with_enough_reviews) %>%
+  mutate(numeric_cocoa_percent = as.numeric(sub("%", "", cocoa_percent))) %>%
+  mutate(cocoa_percent_category = case_when(
+    numeric_cocoa_percent < 60 ~ "<60%",
+    60 <= numeric_cocoa_percent &  numeric_cocoa_percent < 70 ~ ">=60 to <70%",
+    70 <= numeric_cocoa_percent & numeric_cocoa_percent < 90 ~ ">=70 to <90%",
+    numeric_cocoa_percent >= 90 ~ ">=90%"
+  ))
+
+# third step: Using the new column described in #2, re-order the factor levels (if needed) to be starting with the smallest percentage group and increasing to the largest percentage group (Hint check out the fct_relevel() function from forcats).
+summary_percent_cocoa$cocoa_percent_category %>%
+  factor(as.character())
+```
