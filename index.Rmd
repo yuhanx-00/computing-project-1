@@ -113,7 +113,7 @@ chocolate %>%
 
 7. On average, which category of chocolate percentage is most highly rated? Do these countries mostly agree or are there disagreements?
 
-Chocolates with cocoa percentage between 60% to 70% have the highest ratings on average. 
+Chocolates with cocoa percentage between 60% to 70% have the highest ratings on average. Most countries agree with it.
   
 ```{r, fig.width=15, fig.height=15}
 # first step: Identify the countries of bean origin with at least 50 reviews. Remove reviews from countries are not in this list.
@@ -141,14 +141,17 @@ summary_percent_cocoa <- chocolate %>%
   
 # third step: Using the new column described in #2, re-order the factor levels (if needed) to be starting with the smallest percentage group and increasing to the largest percentage group (Hint check out the fct_relevel() function from forcats).
 summary_percent_cocoa %>%
-  arrange(cocoa_percent_category)
+  select(country_of_bean_origin, rating, cocoa_percent_category) %>%
+  arrange(cocoa_percent_category) %>%
+  group_by(cocoa_percent_category) %>%
+  summarise(mean=mean(rating))
 
 # fourth step: For each country, make a set of four side-by-side boxplots plotting the groups on the x-axis and the ratings on the y-axis. These plots should be faceted by country.
 ggplot(summary_percent_cocoa, aes(x = cocoa_percent_category , y = rating)) + 
   geom_boxplot() + 
   geom_point() +
   facet_wrap(~country_of_bean_origin,nrow=4, scales="fixed") +
-  labs(x = "chocolate percentage category", y = "ratings", title = "Ratings by Chocolate Percentage Category in Each Country") +
+  labs(x = "chocolate percentage category", y = "ratings", title = "Ratings by Chocolate Percentage Category in Countries with at Least 50 Reviews") +
   theme(
     plot.title = element_text(hjust = 0.5)  # Center the title
   )
@@ -186,7 +189,7 @@ chocolate_w_continent %>%
 # Make a set of violin plots with ratings on the y-axis and continents on the x-axis.
 ggplot(chocolate_w_continent, aes(x = continent, y = rating)) + 
   geom_violin(trim=FALSE) + 
-  labs(x = "continents", y = "ratings", title = "Ratings by Continent") +
+  labs(x = "continents", y = "ratings", title = "Chocolate Ratings by Continent") +
   theme(
     plot.title = element_text(hjust = 0.5)  # Center the title
   )
@@ -249,6 +252,8 @@ for (n in 1:length(col_names)) {
       left_join(choc_feature_avg_subset, by = join_by(review_date))
   }
 }
+
+choc_feature_avg
 ```
 
 ```{r}
@@ -284,8 +289,8 @@ choc_worst_plot <- chocolate %>%
   geom_point() +
   geom_line() +
   labs(x="",y="", title="Juice") +
-  theme(panel.grid.major = element_line(color = "black", size = 20),  # major gridlines
-    panel.grid.minor = element_line(color = "lightgray", size = 1),  # minor gridlines
+  theme(panel.grid.major = element_line(color = "black", linewidth = 20),  # major gridlines
+    panel.grid.minor = element_line(color = "lightgray", linewidth = 1),  # minor gridlines
     axis.text = element_text(size = 1), # axis text
     plot.title = element_text(hjust = 0.5, vjust = -2.5)) # title position
 choc_worst_plot
@@ -299,7 +304,7 @@ choc_worst_plot
 # - update axis labels to be more informative
 # - add a title 
 # - add a minimal theme
-# - position the title in the center
+# - position the title in the center and make it bigger
 # - rotate x axis label and adjust its height
 # - make x and y axis titles bigger
 chocolate %>%
@@ -307,7 +312,7 @@ chocolate %>%
     geom_boxplot() +
     labs(x="year of review",y="rating", title="Chocolate Rating by Year") +
     theme_minimal() + 
-    theme(plot.title = element_text(hjust = 0.5, vjust = 1), 
+    theme(plot.title = element_text(hjust = 0.5, vjust = 1, size=15), 
           axis.text.x = element_text(angle = 45, hjust = 1),
           axis.title = element_text(size=12)
     )
