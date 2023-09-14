@@ -270,4 +270,30 @@ ggplot(choc_feature_avg_long, aes(x = review_date, y = mean_score, color=feature
 
 # Part 5: Make the worst plot you can!
 ```{r}
+# 7 ways of customization to make this plot awful
+# - use geom_point() which does not make much sense
+# - use geom_line() which also does not make much sense
+# - remove axis labels
+# - irrelevant title
+# - set panel.grid.major to be black so that points are not visible
+# - set axis text size to be very small
+# - set title position to hide under the figure
+
+choc_worst_plot <- chocolate %>%
+  ggplot(aes(x=review_date, y=rating)) +
+  geom_point() +
+  geom_line() +
+  labs(x="",y="", title="Juice") +
+  theme(panel.grid.major = element_line(color = "black", size = 20),  # major gridlines
+    panel.grid.minor = element_line(color = "lightgray", size = 1),  # minor gridlines
+    axis.text = element_text(size = 1), # axis text
+    plot.title = element_text(hjust = 0.5, vjust = -2.5)) # title position
+choc_worst_plot
+```
+
+# Part 6: Make my plot a better plot!
+```{r}
+choc_better_plot <- choc_worst_plot +
+  geom_violin() 
+choc_better_plot
 ```
