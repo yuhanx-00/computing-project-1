@@ -264,6 +264,10 @@ choc_feature_avg_long
 ggplot(choc_feature_avg_long, aes(x = review_date, y = mean_score, color=feature)) + 
   geom_point(size=1, alpha=1/2) + 
   geom_smooth(linewidth = 1, se=FALSE) +
-  labs(x = "year of review", y = "average percentage for each feature", title = "Average Percentage for Each Chocolate Feature by Year", subtitle = "what I found", caption = "plotted by Yuhan Xiao") +
+  labs(x = "year of review", y = "average percentage for each feature", title = "Average Percentage for Each Chocolate Feature by Year", subtitle = "Less people found chocolate to be sweet. More people found chocolate to taste like cocoa. \n The percentage of sugar and lecithin have been decreasing. \n Other ingredients and characteristics have remained similar percentage.", caption = "plotted by Yuhan Xiao") +
   theme_light(base_family = "Times")
+```
+
+# Part 5: Make the worst plot you can!
+```{r}
 ```
