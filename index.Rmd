@@ -293,7 +293,23 @@ choc_worst_plot
 
 # Part 6: Make my plot a better plot!
 ```{r}
-choc_better_plot <- choc_worst_plot +
-  geom_violin() 
-choc_better_plot
+# 7 ways to make this plot better
+# - remove legend and fill color
+# - change violin plot to a box plot 
+# - update axis labels to be more informative
+# - add a title 
+# - add a minimal theme
+# - position the title in the center
+# - rotate x axis label and adjust its height
+# - make x and y axis titles bigger
+chocolate %>%
+    ggplot(aes(x = as.factor(review_date), y = rating)) +
+    geom_boxplot() +
+    labs(x="year of review",y="rating", title="Chocolate Rating by Year") +
+    theme_minimal() + 
+    theme(plot.title = element_text(hjust = 0.5, vjust = 1), 
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title = element_text(size=12)
+    )
+  
 ```
