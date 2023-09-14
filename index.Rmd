@@ -253,7 +253,17 @@ for (n in 1:length(col_names)) {
 
 ```{r}
 # fourth step: Convert this wide dataset into a long dataset with a new feature and mean_score column.
-choc_feature_avg %>%
+choc_feature_avg_long <- choc_feature_avg %>%
   pivot_longer(-review_date, names_to = "feature", values_to = "mean_score") %>%
   mutate(feature=factor(feature), mean_score=as.numeric(mean_score))
+choc_feature_avg_long
+```
+
+# Part 4: Data visualization
+```{r}
+ggplot(choc_feature_avg_long, aes(x = review_date, y = mean_score, color=feature)) + 
+  geom_point(size=1, alpha=1/2) + 
+  geom_smooth(linewidth = 1, se=FALSE) +
+  labs(x = "year of review", y = "average percentage for each feature", title = "Average Percentage for Each Chocolate Feature by Year", subtitle = "what I found", caption = "plotted by Yuhan Xiao") +
+  theme_light(base_family = "Times")
 ```
