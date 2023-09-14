@@ -193,50 +193,41 @@ ggplot(chocolate_w_continent, aes(x = continent, y = rating)) +
 ```
 
 ## Part 3: Convert wide data into long data
-
 ```{r}
 # first step: Create a new set of columns titled beans, sugar, cocoa_butter, vanilla, lecithin, and salt that contain a 1 or 0 representing whether or not that review for the chocolate bar contained that ingredient (1) or not (0)
+
+# second step: Create a new set of columns titled char_cocoa, char_sweet, char_nutty, char_creamy, char_roasty, char_earthy that contain a 1 or 0 representing whether or not that the most memorable characteristic for the chocolate bar had that word (1) or not (0). For example, if the word “sweet” appears in the most_memorable_characteristics, then record a 1, otherwise a 0 for that review in the char_sweet column 
 
 # select necessary variables and store into a new data frame
 chocolate_feature <- chocolate %>%
   select(ingredients, most_memorable_characteristics, rating, review_date)
 
-# create vectors to store ingredients of interest
+# create vectors to store ingredients and characteristics of interest
 ingredients_names <- c("beans", "sugar", "cocoa_butter", "vanilla", "lecithin", "salt")
 ingredients_abbr <- c("B", "S", "C", "V", "L", "Sa")
 
-if (length(ingredients_names) != length(ingredients_abbr)) {
-  stop("ingredients_names has a different length from ingredients_abbr.")
-}
-
-# add new columns for indicating if an ingredient exists
-for (i in 1:length(ingredients_abbr)) {
-    chocolate_feature <- chocolate_feature %>% 
-      mutate(!!as.name(ingredients_names[i]) := case_when( 
-          str_detect(ingredients, as.character(ingredients_abbr[i])) == TRUE ~ 1, 
-          TRUE ~ 0
-      ))
-}
-```
-
-```{r}
-# second step: Create a new set of columns titled char_cocoa, char_sweet, char_nutty, char_creamy, char_roasty, char_earthy that contain a 1 or 0 representing whether or not that the most memorable characteristic for the chocolate bar had that word (1) or not (0). For example, if the word “sweet” appears in the most_memorable_characteristics, then record a 1, otherwise a 0 for that review in the char_sweet column 
-
-# create vectors to store memorable characteristics of interest
 char_names <- c("char_cocoa", "char_sweet", "char_nutty", "char_creamy", "char_roasty", "char_earthy")
 char_abbr <- c("cocoa", "sweet", "nutty", "creamy", "roasty", "earthy")
 
-if (length(char_names) != length(char_abbr)) {
-  stop("char_names has a different length from char_abbr.")
-}
+# create lists to store ingredients and characteristics vectors
+col_names <- list(ingredients_names, char_names)
+col_abbr <- list(ingredients_abbr, char_abbr)
+col_variables <- c("ingredients", "most_memorable_characteristics")
 
-# add new columns for indicating if an ingredient exists
-for (i in 1:length(char_abbr)) {
-    chocolate_feature <- chocolate_feature %>% 
-      mutate(!!as.name(char_names[i]) := case_when( 
-          str_detect(most_memorable_characteristics, as.character(char_abbr[i])) == TRUE ~ 1, 
-          TRUE ~ 0
+for (n in 1:length(col_names)) {
+  # generate error message if lengths don't match
+  if (length(col_names[[n]]) != length(col_abbr[[n]])) {
+    stop("vector_names has a different length than vector_abbr")
+  }
+  
+  # add new columns for indicating if an ingredient or characteristic exists
+  for (i in 1:length(col_names[[n]])) {
+    chocolate_feature <- chocolate_feature %>%
+      mutate(!!col_names[[n]][i] := case_when(
+        str_detect(!!as.name(col_variables[n]), as.character(col_abbr[[n]][i])) == TRUE ~ 1,
+        TRUE ~ 0
       ))
+  }
 }
 ```
 
@@ -247,9 +238,6 @@ for (i in 1:length(char_abbr)) {
 choc_feature_avg <- chocolate %>%
   distinct(review_date) %>%
   arrange(review_date)
-
-# create a list that stores two types of columns (ingredients and characteristics)
-col_names <- list(ingredients_names, char_names)
 
 # calculate the average for each column for each ingredient and characteristic
 for (n in 1:length(col_names)) {
@@ -265,7 +253,7 @@ for (n in 1:length(col_names)) {
 
 ```{r}
 # fourth step: Convert this wide dataset into a long dataset with a new feature and mean_score column.
-choc_feature_avg_long <- choc_feature_avg %>%
+choc_feature_avg %>%
   pivot_longer(-review_date, names_to = "feature", values_to = "mean_score") %>%
   mutate(feature=factor(feature), mean_score=as.numeric(mean_score))
 ```

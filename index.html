@@ -645,43 +645,38 @@ ggplot(chocolate_w_continent, aes(x = continent, y = rating)) +
 <h2>Part 3: Convert wide data into long data</h2>
 <pre class="r"><code># first step: Create a new set of columns titled beans, sugar, cocoa_butter, vanilla, lecithin, and salt that contain a 1 or 0 representing whether or not that review for the chocolate bar contained that ingredient (1) or not (0)
 
+# second step: Create a new set of columns titled char_cocoa, char_sweet, char_nutty, char_creamy, char_roasty, char_earthy that contain a 1 or 0 representing whether or not that the most memorable characteristic for the chocolate bar had that word (1) or not (0). For example, if the word “sweet” appears in the most_memorable_characteristics, then record a 1, otherwise a 0 for that review in the char_sweet column 
+
 # select necessary variables and store into a new data frame
 chocolate_feature &lt;- chocolate %&gt;%
   select(ingredients, most_memorable_characteristics, rating, review_date)
 
-# create vectors to store ingredients of interest
+# create vectors to store ingredients and characteristics of interest
 ingredients_names &lt;- c(&quot;beans&quot;, &quot;sugar&quot;, &quot;cocoa_butter&quot;, &quot;vanilla&quot;, &quot;lecithin&quot;, &quot;salt&quot;)
 ingredients_abbr &lt;- c(&quot;B&quot;, &quot;S&quot;, &quot;C&quot;, &quot;V&quot;, &quot;L&quot;, &quot;Sa&quot;)
 
-if (length(ingredients_names) != length(ingredients_abbr)) {
-  stop(&quot;ingredients_names has a different length from ingredients_abbr.&quot;)
-}
-
-# add new columns for indicating if an ingredient exists
-for (i in 1:length(ingredients_abbr)) {
-    chocolate_feature &lt;- chocolate_feature %&gt;% 
-      mutate(!!as.name(ingredients_names[i]) := case_when( 
-          str_detect(ingredients, as.character(ingredients_abbr[i])) == TRUE ~ 1, 
-          TRUE ~ 0
-      ))
-}</code></pre>
-<pre class="r"><code># second step: Create a new set of columns titled char_cocoa, char_sweet, char_nutty, char_creamy, char_roasty, char_earthy that contain a 1 or 0 representing whether or not that the most memorable characteristic for the chocolate bar had that word (1) or not (0). For example, if the word “sweet” appears in the most_memorable_characteristics, then record a 1, otherwise a 0 for that review in the char_sweet column 
-
-# create vectors to store memorable characteristics of interest
 char_names &lt;- c(&quot;char_cocoa&quot;, &quot;char_sweet&quot;, &quot;char_nutty&quot;, &quot;char_creamy&quot;, &quot;char_roasty&quot;, &quot;char_earthy&quot;)
 char_abbr &lt;- c(&quot;cocoa&quot;, &quot;sweet&quot;, &quot;nutty&quot;, &quot;creamy&quot;, &quot;roasty&quot;, &quot;earthy&quot;)
 
-if (length(char_names) != length(char_abbr)) {
-  stop(&quot;char_names has a different length from char_abbr.&quot;)
-}
+# create lists to store ingredients and characteristics vectors
+col_names &lt;- list(ingredients_names, char_names)
+col_abbr &lt;- list(ingredients_abbr, char_abbr)
+col_variables &lt;- c(&quot;ingredients&quot;, &quot;most_memorable_characteristics&quot;)
 
-# add new columns for indicating if an ingredient exists
-for (i in 1:length(char_abbr)) {
-    chocolate_feature &lt;- chocolate_feature %&gt;% 
-      mutate(!!as.name(char_names[i]) := case_when( 
-          str_detect(most_memorable_characteristics, as.character(char_abbr[i])) == TRUE ~ 1, 
-          TRUE ~ 0
+for (n in 1:length(col_names)) {
+  # generate error message if lengths don&#39;t match
+  if (length(col_names[[n]]) != length(col_abbr[[n]])) {
+    stop(&quot;vector_names has a different length than vector_abbr&quot;)
+  }
+  
+  # add new columns for indicating if an ingredient or characteristic exists
+  for (i in 1:length(col_names[[n]])) {
+    chocolate_feature &lt;- chocolate_feature %&gt;%
+      mutate(!!col_names[[n]][i] := case_when(
+        str_detect(!!as.name(col_variables[n]), as.character(col_abbr[[n]][i])) == TRUE ~ 1,
+        TRUE ~ 0
       ))
+  }
 }</code></pre>
 <pre class="r"><code># third step: For each year (i.e. review_date), calculate the mean value in each new column you created across all reviews for that year. (Hint: If all has gone well thus far, you should have a dataset with 16 rows and 13 columns)
 
@@ -689,9 +684,6 @@ for (i in 1:length(char_abbr)) {
 choc_feature_avg &lt;- chocolate %&gt;%
   distinct(review_date) %&gt;%
   arrange(review_date)
-
-# create a list that stores two types of columns (ingredients and characteristics)
-col_names &lt;- list(ingredients_names, char_names)
 
 # calculate the average for each column for each ingredient and characteristic
 for (n in 1:length(col_names)) {
@@ -704,9 +696,23 @@ for (n in 1:length(col_names)) {
   }
 }</code></pre>
 <pre class="r"><code># fourth step: Convert this wide dataset into a long dataset with a new feature and mean_score column.
-choc_feature_avg_long &lt;- choc_feature_avg %&gt;%
+choc_feature_avg %&gt;%
   pivot_longer(-review_date, names_to = &quot;feature&quot;, values_to = &quot;mean_score&quot;) %&gt;%
   mutate(feature=factor(feature), mean_score=as.numeric(mean_score))</code></pre>
+<pre><code>## # A tibble: 192 × 3
+##    review_date feature      mean_score
+##          &lt;dbl&gt; &lt;fct&gt;             &lt;dbl&gt;
+##  1        2006 beans            0.968 
+##  2        2006 sugar            0.968 
+##  3        2006 cocoa_butter     0.903 
+##  4        2006 vanilla          0.694 
+##  5        2006 lecithin         0.694 
+##  6        2006 salt             0     
+##  7        2006 char_cocoa       0.210 
+##  8        2006 char_sweet       0.161 
+##  9        2006 char_nutty       0.0323
+## 10        2006 char_creamy      0.242 
+## # ℹ 182 more rows</code></pre>
 </div>
 
 
