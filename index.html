@@ -684,13 +684,32 @@ for (i in 1:length(char_abbr)) {
       ))
 }</code></pre>
 <pre class="r"><code># third step: For each year (i.e. review_date), calculate the mean value in each new column you created across all reviews for that year. (Hint: If all has gone well thus far, you should have a dataset with 16 rows and 13 columns)
-chocolate_feature_avg &lt;- chocolate_feature %&gt;%
-  group_by(review_date) %&gt;%
-  summarise(
-    mean_beans = mean(as.numeric(beans)),
-    mean_salt = mean(as.numeric(salt))
-  ) %&gt;%
-  arrange(review_date)</code></pre>
+
+# create a function that takes in a dataframe and calculate the mean value of a column
+summarize_code &lt;- function(data, col) {
+  col_name &lt;- paste(&quot;means_&quot;, col, sep=&quot;&quot;)
+  data %&gt;%
+    summarize(!!col_name := mean(!!sym(col)))
+}
+
+# create a base data frame from chocolate with distinct review_date
+choc_feature_avg &lt;- chocolate %&gt;%
+  distinct(review_date) %&gt;%
+  arrange(review_date)
+
+# create a list that stores two types of columns (ingredients and characteristics)
+col_names &lt;- list(ingredients_names, char_names)
+
+# calculate the average for each column for each ingredient and characteristic
+for (n in 1:length(col_names)) {
+  for (i in 1:length(col_names[[n]])) {
+    choc_feature_avg_subset &lt;- chocolate_feature %&gt;%
+      group_by(review_date) %&gt;%
+      summarize_code(col_names[[n]][i])
+    choc_feature_avg &lt;- choc_feature_avg %&gt;%
+      left_join(choc_feature_avg_subset, by = join_by(review_date))
+  }
+}</code></pre>
 </div>
 
 
