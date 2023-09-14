@@ -52,10 +52,7 @@ hist(chocolate$rating,
 ```{r}
 chocolate %>%
   select(rating,country_of_bean_origin) %>%
-  group_by(country_of_bean_origin) %>%
-  summarise(
-    number_of_reviews = n()
-  )
+  count(country_of_bean_origin)
 ```
 
 3. What is average rating scores from reviews of chocolate bars that have Ecuador as country_of_bean_origin in this dataset? For this same set of reviews, also calculate (1) the total number of reviews and (2) the standard deviation of the rating scores. Your answer should be a new data frame with these three summary statistics in three columns. Label the name of these columns mean, sd, and total.
@@ -244,12 +241,11 @@ for (i in 1:length(char_abbr)) {
 
 ```{r}
 # third step: For each year (i.e. review_date), calculate the mean value in each new column you created across all reviews for that year. (Hint: If all has gone well thus far, you should have a dataset with 16 rows and 13 columns)
-chocolate_feature <- chocolate_feature %>%
+chocolate_feature_avg <- chocolate_feature %>%
   group_by(review_date) %>%
   summarise(
-    for (i in 1:length(ingredients_names)) {
-      paste("mean", ingredients_names[i], sep ="_")=mean(ingredients_names[i])
-    }
+    mean_beans = mean(as.numeric(beans)),
+    mean_salt = mean(as.numeric(salt))
   ) %>%
   arrange(review_date)
 ```
