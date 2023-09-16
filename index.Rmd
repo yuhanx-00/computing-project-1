@@ -12,6 +12,7 @@ library(here)
 library(tidyverse)
 library(dplyr)
 library(gapminder)
+library(paletteer) 
 
 # tests if a directory named "data" exists locally
 if (!dir.exists(here("data"))) {
@@ -266,11 +267,15 @@ choc_feature_avg_long
 
 # Part 4: Data visualization
 ```{r}
+paletteer_d("ggprism::colors", 12)
+
 ggplot(choc_feature_avg_long, aes(x = review_date, y = mean_score, color=feature)) + 
   geom_point(size=1, alpha=1/2) + 
-  geom_smooth(linewidth = 1, se=FALSE) +
-  labs(x = "year of review", y = "average percentage for each feature", title = "Average Percentage for Each Chocolate Feature by Year", subtitle = "Less people found chocolate to be sweet. More people found chocolate to taste like cocoa. \n The percentage of sugar and lecithin have been decreasing. \n Other ingredients and characteristics have remained similar percentage.", caption = "plotted by Yuhan Xiao") +
-  theme_light(base_family = "Times")
+  geom_smooth(linewidth = 2, se=FALSE) +
+  labs(x = "year of review", y = "average percentage for each feature", title = "Average Percentage for Each Chocolate Feature by Year", subtitle = "More people found chocolate to taste like cocoa. \n The percentage of cocoa butter,  vanilla and lecithin have been decreasing. \n Other ingredients and characteristics have remained similar percentage.", caption = "Yuhan Xiao") +
+  theme_light(base_family = "Times", base_size = 15) +
+  theme(legend.position="right")+
+  scale_color_manual(values=paletteer_d("ggprism::colors", 12))
 ```
 
 # Part 5: Make the worst plot you can!
@@ -290,7 +295,6 @@ choc_worst_plot <- chocolate %>%
   geom_line() +
   labs(x="",y="", title="Juice") +
   theme(panel.grid.major = element_line(color = "black", linewidth = 20),  # major gridlines
-    panel.grid.minor = element_line(color = "lightgray", linewidth = 1),  # minor gridlines
     axis.text = element_text(size = 1), # axis text
     plot.title = element_text(hjust = 0.5, vjust = -2.5)) # title position
 choc_worst_plot
@@ -311,7 +315,7 @@ chocolate %>%
     ggplot(aes(x = as.factor(review_date), y = rating)) +
     geom_boxplot() +
     labs(x="year of review",y="rating", title="Chocolate Rating by Year") +
-    theme_minimal() + 
+    theme_minimal(base_size=14) + 
     theme(plot.title = element_text(hjust = 0.5, vjust = 1, size=15), 
           axis.text.x = element_text(angle = 45, hjust = 1),
           axis.title = element_text(size=12)
