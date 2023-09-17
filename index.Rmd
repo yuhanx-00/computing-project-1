@@ -43,10 +43,11 @@ glimpse(chocolate)
 As I increased the number of bins, some bins became empty due to lacking values within that range. I picked 10 bins because no bin is empty in this case.
 
 ```{r}
-hist(chocolate$rating, 
-     breaks=seq(1,4,3/10),
-     xlab="Rating", ylab="Frequency", 
-     main="Frequency of Chocolate Rating")
+ggplot(chocolate, aes(x=rating)) +
+  geom_histogram(bins=10, binwidth = 3/10) +
+  labs(x= "rating", y="frequency", title ="Chocolate Rating Frequency") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 2. Consider the countries where the beans originated from. How many reviews come from each country of bean origin?
@@ -67,7 +68,7 @@ summary_data <- chocolate %>%
     sd = sd(rating),
     total = n()
   )
-summary_data
+as.data.frame(summary_data)
 ```
 
 4. Which company (name) makes the best chocolate (or has the highest ratings on average) with beans from Ecuador?
@@ -185,11 +186,12 @@ countries_with_enough_reviews <- chocolate_w_continent %>%
 chocolate_w_continent %>%
   select(country_of_bean_origin, continent, rating) %>%
   filter(country_of_bean_origin %in% countries_with_enough_reviews) %>%
-  filter(country_of_bean_origin != "Blend")
+  filter(country_of_bean_origin != "Blend") %>%
+  arrange(desc(rating))
 
 # Make a set of violin plots with ratings on the y-axis and continents on the x-axis.
 ggplot(chocolate_w_continent, aes(x = continent, y = rating)) + 
-  geom_violin(trim=FALSE) + 
+  geom_violin(trim=TRUE) + 
   labs(x = "continents", y = "ratings", title = "Chocolate Ratings by Continent") +
   theme(
     plot.title = element_text(hjust = 0.5)  # Center the title
