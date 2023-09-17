@@ -183,16 +183,37 @@ countries_with_enough_reviews <- chocolate_w_continent %>%
   pull(country_of_bean_origin)
 
 # filter out countries with enough reviews and remove countries named Blend
-chocolate_w_continent %>%
+chocolate_w_continent_filtered <- chocolate_w_continent %>%
   select(country_of_bean_origin, continent, rating) %>%
-  filter(country_of_bean_origin %in% countries_with_enough_reviews) %>%
-  filter(country_of_bean_origin != "Blend") %>%
+  filter(as.character(country_of_bean_origin) %in% countries_with_enough_reviews) %>%
+  filter(toupper(country_of_bean_origin) != "BLEND") %>%
   arrange(desc(rating))
 
+# find countries of bean origin with missing continent
+country_wo_continent <- chocolate_w_continent_filtered %>%
+  filter(is.na(continent)) %>%
+  distinct(country_of_bean_origin)
+
+# assign countries with missing continent to a continent manually
+chocolate_w_continent_filtered <- chocolate_w_continent_filtered %>%
+  mutate(continent=ifelse(is.na(continent), case_when(
+    country_of_bean_origin == "Fiji" ~ "Oceania",
+    country_of_bean_origin == "Papua New Guinea" ~ "Oceania",
+    country_of_bean_origin == "Sao Tome" ~ "Africa",
+    country_of_bean_origin == "Vanuatu" ~ "Oceania",
+    country_of_bean_origin == "Trinidad" ~ "Americas",
+    country_of_bean_origin == "Belize" ~ "Americas",
+    country_of_bean_origin == "Grenada" ~ "Americas",
+    country_of_bean_origin == "Solomon Islands" ~ "Oceania",
+    country_of_bean_origin == "St. Lucia" ~ "Americas",
+    country_of_bean_origin == "Congo" ~ "Africa",
+    country_of_bean_origin == "U.S.A." ~ "Americas"
+  ), as.character(continent)))
+
 # Make a set of violin plots with ratings on the y-axis and continents on the x-axis.
-ggplot(chocolate_w_continent, aes(x = continent, y = rating)) + 
+ggplot(chocolate_w_continent_filtered, aes(x = continent, y = rating)) + 
   geom_violin(trim=TRUE) + 
-  labs(x = "continents", y = "ratings", title = "Chocolate Ratings by Continent") +
+  labs(x = "continents", y = "ratings", title = "Chocolate Ratings by Continent of Bean Origin") +
   theme(
     plot.title = element_text(hjust = 0.5)  # Center the title
   )
